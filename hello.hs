@@ -88,4 +88,3 @@ surface (Triangle p1 p2 p3) = sqrt (s * (s-a) * (s-b) * (s-c))
         s = (a + b + c) / 2
 surface (Rectangle (Point x1 y1) (Point x2 y2)) = abs (x2 - x1) * abs (y2 - y1)
 
-
