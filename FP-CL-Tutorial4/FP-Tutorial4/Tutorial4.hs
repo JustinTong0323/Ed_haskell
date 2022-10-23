@@ -145,18 +145,23 @@ zipMatrix f = zipWith (zipWith f)
 
 -- All ways of deleting a single element from a list
 removes :: [a] -> [[a]]
-removes = undefined
+removes [] = []
+removes (x:xs) = xs : map (x : ) (removes xs)
 
 -- Produce a matrix of minors from a given matrix
 minors :: Matrix -> [[Matrix]]
-minors m = undefined
+minors m = map (map transpose . removes . transpose) (removes m)
 
 -- A matrix where element a_ij = (-1)^(i + j)
 signMatrix :: Int -> Int -> Matrix
 signMatrix w h = [[(-1)^(i+j) | i <- [1..w]] | j <- [1..h]]
 
 determinant :: Matrix -> Rational
-determinant = undefined
+determinant [[n]] = n
+determinant m = sum (zipWith (*) row (cycle [1,-1]))
+    where 
+        f x m = x * determinant m
+        row = head (zipMatrix f m (minors m))
 
 cofactors :: Matrix -> Matrix
 cofactors m = undefined
