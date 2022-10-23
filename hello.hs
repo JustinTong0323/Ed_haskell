@@ -72,6 +72,7 @@ sumSqr = foldr ((+) . (^2)) 0 . filter (>0)
 --6.Algebraic data Types
 data Point = Point Float Float
     deriving(Eq,Show)
+    
 data Shape = Circle Point Float | Triangle Point Point Point | Rectangle Point Point
     deriving(Eq,Show)
 
