@@ -164,13 +164,13 @@ determinant m = sum (zipWith (*) row (cycle [1,-1]))
         row = head (zipMatrix f m (minors m))
 
 cofactors :: Matrix -> Matrix
-cofactors m = undefined
+cofactors m = zipMatrix (*) (mapMatrix determinant (minors m)) (signMatrix (width m) (height m) )
 
 scaleMatrix :: Rational -> Matrix -> Matrix
-scaleMatrix k = undefined
+scaleMatrix k = mapMatrix (k*)
 
 inverse :: Matrix -> Matrix
-inverse m = undefined
+inverse m = scaleMatrix (1 / determinant m ) (transpose (cofactors m))
 
 -- Tests
 identity :: Int -> Matrix
@@ -178,7 +178,8 @@ identity n = [[if i == j then 1 else 0 | i <- [1..n]]|j <- [1..n]]
 
 prop_inverse2 :: Rational -> Rational -> Rational
                 -> Rational -> Property
-prop_inverse2 a b c d = undefined
+prop_inverse2 a b c d = determinant m /= 0 ==> m `timesM` inverse m == identity 2 && inverse m `timesM` m == identity 2 
+    where m = [[a,b],[c,d]]
 
 type Triple a = (a,a,a)
 
@@ -186,4 +187,7 @@ prop_inverse3 :: Triple Rational ->
                  Triple Rational ->
                  Triple Rational ->
                  Property
-prop_inverse3 r1 r2 r3 = undefined
+prop_inverse3 r1 r2 r3 = determinant m /= 0 ==> m `timesM` inverse m == identity 3 && inverse m `timesM` m == identity 3
+    where
+        tupleToList3 (x,y,z) = [x,y,z]
+        m = map tupleToList3 [r1,r2,r3]
