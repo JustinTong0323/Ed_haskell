@@ -141,7 +141,7 @@ mapMatrix :: (a -> b) -> [[a]] -> [[b]]
 mapMatrix f = map (map f)
 
 zipMatrix :: (a -> b -> c) -> [[a]] -> [[b]] -> [[c]]
-zipMatrix f m1 m2 = [zipWith f x y | (x,y) <- zip m1 m2]
+zipMatrix f = zipWith (zipWith f)
 
 -- All ways of deleting a single element from a list
 removes :: [a] -> [[a]]
