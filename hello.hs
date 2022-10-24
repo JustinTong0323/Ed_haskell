@@ -113,3 +113,24 @@ evalExp (Add e f) = evalExp e + evalExp f
 evalExp (Mul e f) = evalExp e * evalExp f
 
 --7.1 Propositions
+type Name = String
+data Prop = Var Name
+    | F
+    | T
+    | Not Prop
+    | Prop :||: Prop
+    | Prop :&&: Prop
+    deriving Eq
+
+p0 = Var "a" :&&: Not (Var "a")
+p1 = (Var "a" :&&: Var "b") :||: (Not (Var "a") :&&: Not (Var "b"))
+p2 = (Var "a" :&&: Not (Var "b") :&&: (Var "c" :||: (Var "d" :&&: Var "b")) :||: (Not (Var "b") :&&: Not (Var "a"))) :&&: Var "c"
+
+instance Show Prop where
+    show (Var x) = x
+    show F = "F"
+    show T = "T"
+    show (Not p) = par ( "not " ++ show p)
+    show (p :||: q) = par (show p ++ " || " ++ show q)
+    show (p :&&: q) = par (show p ++ " && " ++ show q)
+
