@@ -89,3 +89,27 @@ surface (Triangle p1 p2 p3) = sqrt (s * (s-a) * (s-b) * (s-c))
         s = (a + b + c) / 2
 surface (Rectangle (Point x1 y1) (Point x2 y2)) = abs (x2 - x1) * abs (y2 - y1)
 
+--7.Expression Trees as Algebraic data Type
+data Exp = Lit Int
+    | Add Exp Exp
+    | Mul Exp Exp
+    deriving Eq
+
+e0 = Add (Lit 1) (Mul (Lit 2) (Lit 3))
+e1 = Mul (Add (Lit 1) (Lit 2)) (Lit 3)
+e2 = Add e0 (Mul (Lit 4) e1)
+
+par :: String -> String
+par s = "(" ++ s ++ ")"
+
+showExp :: Exp -> String
+showExp (Lit n) = show n
+showExp (Add e f) = par (showExp e ++ "+" ++ showExp f)
+showExp (Mul e f) = par (showExp e ++ "*" ++ showExp f)
+
+evalExp :: Exp -> Int
+evalExp (Lit n) = n
+evalExp (Add e f) = evalExp e + evalExp f
+evalExp (Mul e f) = evalExp e * evalExp f
+
+--7.1 Propositions
