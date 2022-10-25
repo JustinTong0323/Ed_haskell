@@ -1,4 +1,6 @@
 import Test.QuickCheck
+import Data.List (nub)
+
 --1.
 max3 :: Int -> Int ->  Int -> Int
 max3 a b c
@@ -133,4 +135,42 @@ instance Show Prop where
     show (Not p) = par ( "not " ++ show p)
     show (p :||: q) = par (show p ++ " || " ++ show q)
     show (p :&&: q) = par (show p ++ " && " ++ show q)
+
+type Valn = Name -> Bool
+
+evalProp :: Valn -> Prop -> Bool
+evalProp vn (Var x) = vn x
+evalProp vn F = False
+evalProp vn T = True
+evalProp vn (Not p) = not (evalProp vn p)
+evalProp vn (p :||: q) = evalProp vn p || evalProp vn q
+evalProp vn (p :&&: q) = evalProp vn p && evalProp vn q
+
+valn :: Valn
+valn "a" = True
+valn "b" = True
+valn "c" = False
+valn "d" = True
+
+type Names = [Name]
+
+names :: Prop -> Names
+names (Var x) = [x]
+names F = []
+names T = []
+names (Not p) = names p
+names (p :||: q) = nub (names p ++ names q)
+names (p :&&: q) = nub (names p ++ names q)
+
+empty :: Valn
+empty y = error "undefined !!"
+
+extend :: Valn -> Name -> Bool -> Valn
+extend vn x b y
+    | x == y = b
+    | otherwise = vn y
+
+valns :: Names -> [Valn]
+valns [] = [ empty ]
+valns (x:xs) = [extend vn x b | vn <- valns xs, b <- [True, False]]
 
