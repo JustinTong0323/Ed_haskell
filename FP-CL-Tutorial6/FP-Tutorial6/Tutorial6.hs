@@ -19,6 +19,8 @@ data Prop = Var Name
           | Prop :&&: Prop
           -- begin
           -- code for :->: and :<->: goes here
+          | Prop :->: Prop
+          | Prop :<->: Prop
           -- end
           deriving (Eq)
 
@@ -35,6 +37,8 @@ showProp (p :||: q)  = par (showProp p ++ " || " ++ showProp q)
 showProp (p :&&: q)  = par (showProp p ++ " && " ++ showProp q)
 -- begin
 -- code for :->: and :<->: goes here
+showProp (p :->: q)  = par (showProp p ++ " -> " ++ showProp q)
+showProp (p :<->: q)  = par (showProp p ++ " <-> " ++ showProp q)
 -- end
 
 -- Valuations
@@ -48,8 +52,13 @@ eval vn T           = True
 eval vn (Not p)     = not (eval vn p)
 eval vn (p :||: q)  = eval vn p || eval vn q
 eval vn (p :&&: q)  = eval vn p && eval vn q
+
 -- begin
 -- code for :->: and :<->: goes here
+eval vn (p :->: q)  = not (eval vn p) || eval vn q
+eval vn (p :<->: q)  = eval vn p == eval vn q
+
+
 -- end
 
 -- list the variable names that occur in a proposition
@@ -65,6 +74,9 @@ names (p :||: q)  = nub (names p ++ names q)
 names (p :&&: q)  = nub (names p ++ names q)
 -- begin
 -- code for :->: and :<->: goes here
+names (p :->: q)  = nub (names p ++ names q)
+names (p :<->: q)  = nub (names p ++ names q)
+
 -- end
 
 -- creates all possible valuations for a set of variable names
@@ -88,33 +100,112 @@ satisfiable p = or [ eval e p | e <- valns (names p) ]
 
 -- 1.
 p1, p2, p3 :: Prop
-p1 = undefined
-p2 = undefined
-p3 = undefined
-
+p1 =  (Var "P" :||: Not (Var "P"))
+p2 = ((Var "P" :||: Var "Q") :&&: (Var "P" :&&: Var "Q"))
+p3 = ((Var "P" :&&: (Var "Q" :||: Var "R")) :&&: ((((Not (Var "P")) :||: Not (Var "Q")) :&&: ((Not (Var "P")) :||: (Not (Var "R"))))))
 {-
 -- copy results of execution here
+table p1
+P | (P || (not P))
+- | --------------
+1 |       1       
+0 |       1       
+satisfiable p1
+True
+
+table p2
+P Q | ((P || Q) && (P && Q))
+- - | ----------------------
+1 1 |           1           
+0 1 |           0           
+1 0 |           0           
+0 0 |           0  
+satisfiable p2
+True
+
+table p3      
+P Q R | ((P && (Q || R)) && (((not P) || (not Q)) && ((not P) || (not R))))
+- - - | -------------------------------------------------------------------
+1 1 1 |                                  0                                 
+0 1 1 |                                  0                                 
+1 0 1 |                                  0                                 
+0 0 1 |                                  0                                 
+1 1 0 |                                  0                                 
+0 1 0 |                                  0                                 
+1 0 0 |                                  0                                 
+0 0 0 |                                  0   
+satisfiable p3
+False
 -}
 
 -- 2. 
 tautology :: Prop -> Bool
-tautology p = undefined
+tautology p = and [ eval e p | e <- valns (names p) ]
 
 prop_taut :: Prop -> Bool
-prop_taut p = undefined
+prop_taut p = not (satisfiable (Not p)) == tautology p
+
+--p' = (((Not (Var "p")) :||: Not (Var "q")) :&&: (Not (Var "p"))) :||: Var "p"
 
 {-
 -- copy results of execution here
+tautology p1
+True
+
+tautology p2
+False
+
+tautology p3
+False
 -}
 
 -- 3.
 p4, p5, p6 :: Prop
-p4 = undefined
-p5 = undefined
-p6 = undefined
-
+p4 = (Var "P" :->: Var "Q") :<->: (Not (Var "P") :||: Var "Q")
+p5 = (Var "P" :->: Var "Q") :&&: (Var "Q" :->: Var "P")
+p6 = ((Var "P" :->: Var "Q") :&&: (Var "Q" :->: Var "R")) :&&: Not (Var "P" :->: Var "R")
 {-
 -- copy results of execution here
+
+*Tutorial6Sol> table p4
+P Q | ((P -> Q) <-> ((not P) || Q))
+- - | -----------------------------
+1 1 |               1              
+0 1 |               1              
+1 0 |               1              
+0 0 |               1              
+*Tutorial6Sol> satisfiable p4
+True
+*Tutorial6Sol> tautology p4
+True
+
+*Tutorial6Sol> table p5      
+P Q | ((P -> Q) && (Q -> P))
+- - | ----------------------
+1 1 |           1           
+0 1 |           0           
+1 0 |           0           
+0 0 |           1           
+*Tutorial6Sol> satisfiable p5
+True
+*Tutorial6Sol> tautology p5  
+False
+
+*Tutorial6Sol> table p6      
+P Q R | (((P -> Q) && (Q -> R)) && (not (P -> R)))
+- - - | ------------------------------------------
+1 1 1 |                     0                     
+0 1 1 |                     0                     
+1 0 1 |                     0                     
+0 0 1 |                     0                     
+1 1 0 |                     0                     
+0 1 0 |                     0                     
+1 0 0 |                     0                     
+0 0 0 |                     0                     
+*Tutorial6Sol> satisfiable p6
+False
+*Tutorial6Sol> tautology p6  
+False
 -}
 
 
@@ -230,8 +321,8 @@ instance Arbitrary Prop where
                                    , liftM Not p2
                                    , liftM2 (:||:) p2 p2
                                    , liftM2 (:&&:) p2 p2
-                                   -- , liftM2 (:->:) p2 p2
-                                   -- , liftM2 (:<->:) p2 p2
+                                   , liftM2 (:->:) p2 p2
+                                   , liftM2 (:<->:) p2 p2
                                   ]
                where
                  p2  =  prop (n `div` 4)

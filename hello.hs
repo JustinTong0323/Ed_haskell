@@ -146,12 +146,12 @@ evalProp vn (Not p) = not (evalProp vn p)
 evalProp vn (p :||: q) = evalProp vn p || evalProp vn q
 evalProp vn (p :&&: q) = evalProp vn p && evalProp vn q
 
-valn :: Valn
+{- valn :: Valn
 valn "a" = True
 valn "b" = True
 valn "c" = False
 valn "d" = True
-
+ -}
 type Names = [Name]
 
 names :: Prop -> Names
