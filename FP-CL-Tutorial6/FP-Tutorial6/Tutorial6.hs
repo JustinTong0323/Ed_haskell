@@ -213,7 +213,7 @@ False
 
 -- 5.
 isNNF :: Prop -> Bool
-isNNF = undefined
+isNNF = 
 
 -- 6.
 impElim :: Prop -> Prop
@@ -316,7 +316,13 @@ instance Show Prop where
 instance Arbitrary Prop where
   arbitrary = sized prop
       where
-        prop n | n <= 0    = liftM Var arbitrary
+        prop n | n <= 0    = oneof [ return (Var "a"),
+                                     return (Var "b"),
+                                     return (Var "c"),
+                                     return (Var "d"),
+                                     return (Var "e"),
+                                     return (Var "f")
+                                   ]
                | otherwise = oneof [ liftM Var arbitrary
                                    , liftM Not p2
                                    , liftM2 (:||:) p2 p2
