@@ -1,4 +1,4 @@
-module Tutorial6Sol where
+module Tutorial6 where
 
 import Data.List (nub)
 import Control.Monad (liftM, liftM2)
@@ -167,31 +167,31 @@ p6 = ((Var "P" :->: Var "Q") :&&: (Var "Q" :->: Var "R")) :&&: Not (Var "P" :->:
 {-
 -- copy results of execution here
 
-*Tutorial6Sol> table p4
+*Tutorial6> table p4
 P Q | ((P -> Q) <-> ((not P) || Q))
 - - | -----------------------------
 1 1 |               1              
 0 1 |               1              
 1 0 |               1              
 0 0 |               1              
-*Tutorial6Sol> satisfiable p4
+*Tutorial6> satisfiable p4
 True
-*Tutorial6Sol> tautology p4
+*Tutorial6> tautology p4
 True
 
-*Tutorial6Sol> table p5      
+*Tutorial6> table p5      
 P Q | ((P -> Q) && (Q -> P))
 - - | ----------------------
 1 1 |           1           
 0 1 |           0           
 1 0 |           0           
 0 0 |           1           
-*Tutorial6Sol> satisfiable p5
+*Tutorial6> satisfiable p5
 True
-*Tutorial6Sol> tautology p5  
+*Tutorial6> tautology p5  
 False
 
-*Tutorial6Sol> table p6      
+*Tutorial6> table p6      
 P Q R | (((P -> Q) && (Q -> R)) && (not (P -> R)))
 - - - | ------------------------------------------
 1 1 1 |                     0                     
@@ -202,9 +202,9 @@ P Q R | (((P -> Q) && (Q -> R)) && (not (P -> R)))
 0 1 0 |                     0                     
 1 0 0 |                     0                     
 0 0 0 |                     0                     
-*Tutorial6Sol> satisfiable p6
+*Tutorial6> satisfiable p6
 False
-*Tutorial6Sol> tautology p6  
+*Tutorial6> tautology p6  
 False
 -}
 
