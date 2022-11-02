@@ -64,12 +64,13 @@ data Pen = Colour Float Float Float
          | Inkless
            deriving (Eq, Ord, Show)
 
-white, black, red, green, blue :: Pen
+white, black, red, green, blue, pink :: Pen
 white = Colour 1.0 1.0 1.0
 black = Colour 0.0 0.0 0.0
 red   = Colour 1.0 0.0 0.0
 green = Colour 0.0 1.0 0.0
 blue  = Colour 0.0 0.0 1.0
+pink = Colour 1.0 0.0 1.0
 
 -- Lines
 
