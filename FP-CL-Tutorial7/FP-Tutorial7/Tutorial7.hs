@@ -72,6 +72,7 @@ split c = [c | c /= Sit]
 join :: [Command] -> Command
 join = foldr (:#:) Sit
 
+{- 
 -- Auxiliary function: simplify the command
 simplifyCommand :: Command -> Command
 simplifyCommand (p :#: (q :#: r)) = simplifyCommand p :#: simplifyCommand q :#: simplifyCommand r
@@ -79,7 +80,7 @@ simplifyCommand (p :#: Sit) = simplifyCommand p
 simplifyCommand (Sit :#: p) = simplifyCommand p
 simplifyCommand (p :#: q) = simplifyCommand p :#: simplifyCommand q
 simplifyCommand p = p
-
+ -}
 
 -- 6c. equivalent
 equivalent :: Command -> Command -> Bool
@@ -103,9 +104,36 @@ isCmds a = False
 
 -- 7. optimise
 optimise :: Command -> Command
-optimise c =  join' (split c \\ [Sit, Go 0, Turn 0])
+optimise c
+    | null cl = Sit
+    | isOpt' cl = join' cl
+    | otherwise = optimise (join' cl)
+    where cl = combineCmd (removeSit (split c))
 
 -- Auxiliary functions
-
 join' :: [Command] -> Command
 join' = foldr1 (:#:)
+
+removeSit :: [Command] -> [Command]
+removeSit cl = cl \\ [Sit, Go 0, Turn 0]
+
+isOpt :: Command -> Bool
+isOpt c = isOpt' (split c)
+--assume Sit is ignored
+
+isOpt' :: [Command] -> Bool
+isOpt' [] = True
+isOpt' (Go 0 : cl) = False
+isOpt' (Turn 0 : cl) = False
+isOpt' (Go _ : Go _ : cl) = False
+isOpt' (Turn _ : Turn _ : cl) = False
+isOpt' (c : cl) = isOpt' cl
+
+combineCmd :: [Command] -> [Command]
+combineCmd [] = []
+combineCmd (Go x : Go y : cl) = combineCmd (removeSit (Go (x+y) : cl))
+combineCmd (Turn x : Turn y : cl) = combineCmd (removeSit (Turn (x+y) : cl))
+combineCmd (c : cl) = c : combineCmd cl
+
+prop_opt :: Command -> Bool
+prop_opt c = isOpt (optimise c)
