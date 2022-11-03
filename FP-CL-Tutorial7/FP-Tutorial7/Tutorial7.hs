@@ -3,6 +3,8 @@ module Tutorial7 where
 import LSystem
 import Test.QuickCheck
 
+import Data.List
+
 pathExample = Go 30 :#: Turn 120 :#: Go 30 :#: Turn 120 :#: Go 30
 
 -- 1a. copy
@@ -63,8 +65,8 @@ dragon =  l
 
 -- 6a. split
 split :: Command -> [Command]
-split (c :#: cs) =  c : split cs
-split c = [c]
+split (a :#: b) =  split a ++ split b
+split c = [c | c /= Sit]
 
 -- 6b. join
 join :: [Command] -> Command
@@ -72,23 +74,38 @@ join = foldr (:#:) Sit
 
 -- Auxiliary function: simplify the command
 simplifyCommand :: Command -> Command
+simplifyCommand (p :#: (q :#: r)) = simplifyCommand p :#: simplifyCommand q :#: simplifyCommand r
 simplifyCommand (p :#: Sit) = simplifyCommand p
 simplifyCommand (Sit :#: p) = simplifyCommand p
-simplifyCommand (p :#: (q :#: r)) = (simplifyCommand p :#: simplifyCommand q) :#: simplifyCommand r
 simplifyCommand (p :#: q) = simplifyCommand p :#: simplifyCommand q
 simplifyCommand p = p
 
+
 -- 6c. equivalent
 equivalent :: Command -> Command -> Bool
-equivalent a b =  split (simplifyCommand a) == split (simplifyCommand b)
+equivalent a b =  split a == split b
 
 -- 6d. testing join and split
 prop_split_join :: Command -> Bool
-prop_split_join c = (join.split) c == c
+prop_split_join c = equivalent (join (split c)) c
+
 
 prop_split :: Command -> Bool
-prop_split =  undefined
+prop_split c =  not ((Sit `elem` cl) && any isCmds cl)
+    where
+        cl = split c
+
+---- Auxiliary function
+isCmds :: Command -> Bool
+isCmds (a :#: b) = True
+isCmds a = False
+
 
 -- 7. optimise
 optimise :: Command -> Command
-optimise =  undefined
+optimise c =  join' (split c \\ [Sit, Go 0, Turn 0])
+
+-- Auxiliary functions
+
+join' :: [Command] -> Command
+join' = foldr1 (:#:)
