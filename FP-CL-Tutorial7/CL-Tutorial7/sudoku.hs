@@ -14,7 +14,7 @@ data Form atom = And [Clause atom]
 
 neg :: Literal atom -> Literal atom
 neg (P a) = N a
-neg (N a) = P a                          
+neg (N a) = P a
 
 (<&&>) :: Form a -> Form a -> Form a
 And xs <&&> And ys = And ( xs ++ ys )
@@ -22,7 +22,7 @@ And xs <&&> And ys = And ( xs ++ ys )
 -- | The next three functions correspond to the optimized
 -- implementation of the DPLL algorithm, as seen in the textbook
 -- in chapter 19.
-                    
+
 (<<) :: Eq atom => [Clause atom] -> Literal atom -> [Clause atom]
 cs << l = [ Or (delete (neg l) ls)
                | Or ls <- cs, not (l `elem` ls) ]
@@ -63,10 +63,12 @@ rowsComplete = And [ Or [ P (i, j, n) | j <- [1..9] ]
                    | i <- [1..9], n <- [1..9] ]
 
 columnsComplete :: Form (Int,Int,Int)
-columnsComplete = undefined
+columnsComplete = And [ Or [ P (i, j, n) | i <- [1..9] ]
+                   | j <- [1..9], n <- [1..9] ]
 
 squaresComplete :: Form (Int,Int,Int)
-squaresComplete = undefined
+squaresComplete = And [ Or [ P (i, j, n) | i <- [x..x+2], j <- [y..y+2]] 
+                      | n <- [1..9], x <- [1,4,7], y <- [1,4,7]]
 
 rowsNoRepetition :: Form (Int,Int,Int)
 rowsNoRepetition = And [ Or [ N (i, j, n), N (i, j', n) ]
@@ -74,10 +76,13 @@ rowsNoRepetition = And [ Or [ N (i, j, n), N (i, j', n) ]
                          j <- [1..9], j' <- [1..(j-1)] ]
 
 columnsNoRepetition :: Form (Int,Int,Int)
-columnsNoRepetition = undefined
-                      
+columnsNoRepetition = And [ Or [ N (i, j, n), N (i', j, n) ]
+                       | i <- [1..9], n <- [1..9],
+                         j <- [1..9], i' <- [1..(j-1)] ]
+
 squaresNoRepetition :: Form (Int,Int,Int)
-squaresNoRepetition = undefined
+squaresNoRepetition = And [ Or [ N (i, j, n), N (i', j', n)] 
+                      | x <- [1,4,7], y <- [1,4,7], n <- [1..9], i <- [x..x+2], j <- [y..y+2], i' <- [x..i-1], j' <- [y..j-1]]
 
 solutions :: Form (Int, Int, Int) -> [[Literal (Int, Int, Int)]]
 solutions problem = dpll (sudoku <&&> problem)
@@ -91,7 +96,7 @@ sudokuProblem = And [ Or [P (1,8,8)], Or [P (1,9,2)], Or [P (2,1,6)]
                     , Or [P (5,8,3)], Or [P (6,5,1)], Or [P (7,4,8)]
                     , Or [P (7,7,6)], Or [P (8,2,8)], Or [P (8,3,1)]
                     , Or [P (9,2,2)], Or [P (9,9,7)]]
-                
+
 -- [ Pretty printing for Sudoku problems and solutions ]
 --
 -- The following (optional) functions give you nice and easy to read
