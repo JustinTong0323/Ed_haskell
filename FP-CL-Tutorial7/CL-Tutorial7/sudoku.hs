@@ -50,13 +50,15 @@ prioritise (And cs) = sortOn (\(Or ls) -> length ls) cs
 
 sudoku :: Form (Int, Int, Int)
 sudoku =
-  noneFilledTwice
+  allFilled
+    <&&> noneFilledTwice
     <&&> rowsComplete
-    -- <&&> columnsComplete
-    -- <&&> squaresComplete
-    -- <&&> rowsNoRepetition
+    <&&> columnsComplete
+    <&&> squaresComplete
+    <&&> rowsNoRepetition
     <&&> columnsNoRepetition
     <&&> squaresNoRepetition
+
 -- allfill : ok /faster
 -- any one from Comp : ok
 -- any two from Comp : ok
@@ -267,6 +269,5 @@ sudoku =
     <&&> squaresNoRepetition
 
 Efficiency increases as the number of constrains increase.
-
 
 -}
