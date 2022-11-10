@@ -1,6 +1,7 @@
 module Tutorial8 where  
 
 import System.Random
+-- :set -package random
 import Test.QuickCheck
 
 -- Importing the keymap module
@@ -31,25 +32,29 @@ testDB = fromList [
 -- Exercise 1
 
 getItems :: [Barcode] -> Catalogue -> [Item]
-getItems =  undefined
+getItems [] _ = []
+getItems (k:ks) c = let mi = get k c in 
+  if mi == Nothing then getItems ks c else 
+    let Just i = mi in i : getItems ks c
 
 -- Exercise 2
 
 {-
 *Tutorial8> db <- readDB
 Done
-(??? secs)
+(2.41 secs, 2,254,810,600 bytes)
 *Tutorial8> size db
-???
-(??? secs)
+104651
+(0.01 secs, 60,312 bytes)
 *Tutorial8> ks <- samples 1000 db
-(??? secs)
+(0.20 secs, 9,155,040 bytes)
 *Tutorial8> force (getItems ks db)
 ()
-(??? secs)
+(4.78 secs, 686,056 bytes)
 
 If the database was two times bigger,
 how would you expect the time to change?
+
 -}
 
 -- for Exercises 3--6 check KeymapTree.hs 
