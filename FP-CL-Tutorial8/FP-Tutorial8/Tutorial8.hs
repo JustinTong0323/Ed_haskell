@@ -6,8 +6,8 @@ import Test.QuickCheck
 
 -- Importing the keymap module
 
-import KeymapList
--- import KeymapTreeSol
+-- import KeymapList
+import KeymapTree
 
 -- Type declarations
 
@@ -54,7 +54,7 @@ Done
 
 If the database was two times bigger,
 how would you expect the time to change?
-
+The time would also double as the time increase linearly.
 -}
 
 -- for Exercises 3--6 check KeymapTree.hs 
@@ -64,21 +64,22 @@ how would you expect the time to change?
 {-
 *Tutorial8> db <- readDB
 Done
-(??? secs)
+(6.12 secs, 3,339,891,784 bytes)
 *Tutorial8> size db
-???
-(??? secs)
+104651
+(0.07 secs, 27,688,168 bytes)
 *Tutorial8> depth db
-???
-(??? secs)
+40
+(0.09 secs, 26,844,528 bytes)
 *Tutorial8> ks <- loadKeys
-(??? secs)
+(0.00 secs, 69,592 bytes)
 *Tutorial8> force (getItems ks db)
 ()
-(??? secs)
+(0.04 secs, 25,716,152 bytes)
 
 If the database was two times bigger,
 how would you expect the time to change?
+The time could be less than double but it depends on the order of the keys.
 -}
 
 -- for Exercises 8--10 check KeymapTree.hs 
