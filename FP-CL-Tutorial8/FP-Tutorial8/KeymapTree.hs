@@ -111,18 +111,38 @@ filterGT key = go
       | key > k = go right
       | key < k  = Node k v (go left) right
 
+prop_filterLT :: Int -> [(Int, Int)] -> Bool
+prop_filterLT key kvs = filterLT key (fromList kvs) `equal` fromList [ (k,v) | (k,v) <- kvs, k < key ]
+
+prop_filterGT :: Int -> [(Int, Int)] -> Bool
+prop_filterGT key kvs = filterGT key (fromList kvs) `equal` fromList [ (k,v) | (k,v) <- kvs, k > key ]
+
+equal :: Ord k => Eq a => Keymap k a -> Keymap k a -> Bool
+equal t1 t2 = all (`elem` toList t2) (toList t1) && all (`elem` toList t1) (toList t2)
+
 -- Exercise 9
 
 merge :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
-merge t1 t2 =  undefined
+merge t1 t2 =  foldr (uncurry set) t1 (toList t2)
 
 merge' :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
 merge' t1 t2 = fromList (toList t2 ++ toList t1)
 
+prop_merge :: [(Int, Int)] -> [(Int, Int)] -> Bool
+prop_merge kvs1 kvs2 = merge (fromList kvs1) (fromList kvs2) `equal` fromList (kvs2 ++ kvs1)
+
 -- Exercise 10
 
 select :: Ord k => (a -> Bool) -> Keymap k a -> Keymap k a
-select =  undefined
+select f =  go
+  where
+    go Leaf = Leaf
+    go (Node k v left right)
+      | f v = Node k v (go left) (go right)
+      | otherwise = remove k (Node k v (go left) (go right))
+    
+    remove :: Ord k => k -> Keymap k a -> Keymap k a
+    remove k t = merge (filterLT k t) (filterGT k t)
 
 -- Instances for QuickCheck -----------------------------
 
