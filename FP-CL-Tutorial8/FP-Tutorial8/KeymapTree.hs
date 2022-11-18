@@ -122,11 +122,17 @@ equal t1 t2 = all (`elem` toList t2) (toList t1) && all (`elem` toList t1) (toLi
 
 -- Exercise 9
 
-merge :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
-merge t1 t2 =  foldr (uncurry set) t1 (toList t2)
+merge'' :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
+merge'' t1 t2 =  foldr (uncurry set) t1 (toList t2)
 
 merge' :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
 merge' t1 t2 = fromList (toList t2 ++ toList t1)
+
+merge :: Ord k => Keymap k a -> Keymap k a -> Keymap k a
+merge t Leaf = t
+merge Leaf t = t
+merge (Node k v left right) t2 = Node k v (merge (filterGT k t2) left ) (merge (filterLT k t2) right)
+-- not able to cover the same key/value in t2 with t1
 
 prop_merge :: [(Int, Int)] -> [(Int, Int)] -> Bool
 prop_merge kvs1 kvs2 = merge (fromList kvs1) (fromList kvs2) `equal` fromList (kvs2 ++ kvs1)

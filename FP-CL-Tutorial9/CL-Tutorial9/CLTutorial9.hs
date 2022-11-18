@@ -20,7 +20,7 @@ import Data.Char
 -- The following list contains the five strings in the question.
 -- REMOVE the strings that are not accepted by the automaton.
 
-ex2strings = [ "abbd", "ad", "aab", "abbbc", "ac" ]
+ex2strings = [ "abbd", "ad", "abbbc", "ac" ]
 
 
 -- you should also familiarise yourself with
