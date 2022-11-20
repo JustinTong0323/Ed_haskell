@@ -20,7 +20,7 @@ import Data.Char
 -- The following list contains the five strings in the question.
 -- REMOVE the strings that are not accepted by the automaton.
 
-ex2strings = [ "abbd", "ad", "abbbc", "ac" ]
+ex2strings = [ "abbd", "ad", "abbbc", "ac"]
 
 
 -- you should also familiarise yourself with
@@ -45,7 +45,7 @@ type Trans q = (q, Sym, q)
 --  FSM states symbols transitions starting accepting 
 --                   Q      Sigma        delta       S        F
 data FSM q = FSM (Set q) (Set Sym) (Set(Trans q)) (Set q) (Set q) deriving Show
-mkFSM :: Ord q => [q] -> [Sym] -> [Trans q] -> [q] -> [q] -> FSM q 
+mkFSM :: Ord q => [q] -> [Sym] -> [Trans q] -> [q] -> [q] -> FSM q
 mkFSM qs as ts ss fs =  -- a convenience function constructing FSM from lists
   FSM (fromList qs) (fromList as) (fromList ts) (fromList ss) (fromList fs)
 
@@ -57,32 +57,38 @@ eg1 = mkFSM [0..3] "abcd"
     ++(map (\x->(3,x,3)) "abcd"))
   [0] [2]
 
+eg1qs = fromList [0..3]
+eg1ts = ([(0,'a',1)]++(map (\x->(0,x,3)) "bcd")
+    ++[(1,'b',1),(1,'c',2),(1,'d',2),(1,'a',3)]
+    ++(map (\x->(2,x,3)) "abcd")
+    ++(map (\x->(3,x,3)) "abcd"))
+
 -- Ex 3.
 -- DFA -- 
 isDFA :: Ord q => FSM q -> Bool
-isDFA (FSM qs as ts ss fs) = (size ss == undefined)
-  && undefined [ length[ q' | q' <- toList qs, (q, a, q')`member`ts ] == 1
+isDFA (FSM qs as ts ss fs) = (size ss == 1)
+  && and [ length[ q' | q' <- toList qs, (q, a, q')`member`ts ] == 1
                | q <- toList qs, a <- toList as ]
-  
+
 -- applying transitions for a given symbol to move a list of states
 transition :: (Ord q) => Set(Trans q)  -> Set q -> Sym -> Set q
 transition ts qs s  = fromList [ q' | (q, t, q') <- toList ts, t == s, q `member` qs ]
 
 -- applying transitions for a string of symbols
--- final ::  Ord q => Set(Trans q) ->Set q -> [Sym] -> Set q
+final ::  Ord q => Set(Trans q) -> Set q -> [Sym] -> Set q
 -- final ts ss [] = ss
 -- final ts ss (a : as) = final ts (transition ts ss a) as
--- final ts = foldl (transition ts)
- 
-accepts :: (Ord q) => FSM q -> [Sym] -> Bool 
+final ts = foldl (transition ts)
+
+accepts :: (Ord q) => FSM q -> [Sym] -> Bool
 accepts (FSM _ _ ts ss fs)  string = (not.null) (fs /\ final)
   where final = foldl (transition ts) ss string
 
 -- Ex 4
 trace :: Ord q => FSM q -> [Sym] -> [Set q]
-trace (FSM qs as ts ss fs) word = tr ss word  where 
+trace (FSM qs as ts ss fs) word = tr ss word  where
   tr ss' [] = undefined
-  tr ss' (w : ws) = undefined 
+  tr ss' (w : ws) = undefined
 
 -- Example machines
 
@@ -104,8 +110,8 @@ m2 = mkFSM
      "B"   -- starting
      "ABC" -- accepting
 
-dm1 :: FSM [Int] 
-dm1 = mkFSM 
+dm1 :: FSM [Int]
+dm1 = mkFSM
       [[],[0],[1,2],[3],[3,4],[4]] -- states
       "ab"                         -- symbols
       [([],   'a',[]),    ([],   'b',[])
@@ -124,4 +130,4 @@ dm1 = mkFSM
 
 
 
--} 
+-}
