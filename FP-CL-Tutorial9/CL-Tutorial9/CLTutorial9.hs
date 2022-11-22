@@ -42,7 +42,7 @@ filterS = S.filter
 
 type Sym = Char
 type Trans q = (q, Sym, q)
---  FSM states symbols transitions starting accepting 
+--               FSM states symbols transitions starting accepting 
 --                   Q      Sigma        delta       S        F
 data FSM q = FSM (Set q) (Set Sym) (Set(Trans q)) (Set q) (Set q) deriving Show
 mkFSM :: Ord q => [q] -> [Sym] -> [Trans q] -> [q] -> [q] -> FSM q
@@ -86,9 +86,9 @@ accepts (FSM _ _ ts ss fs)  string = (not.null) (fs /\ final)
 
 -- Ex 4
 trace :: Ord q => FSM q -> [Sym] -> [Set q]
-trace (FSM qs as ts ss fs) word = tr ss word  where
-  tr ss' [] = undefined
-  tr ss' (w : ws) = undefined
+trace (FSM qs as ts ss fs) word = if null word then [fs] else ss : tr ss word  where
+  tr ss' [] = []
+  tr ss' (w : ws) = let ns = transition ts ss' w in ns : tr ns ws
 
 -- Example machines
 
@@ -126,7 +126,7 @@ dm1 = mkFSM
 
 -- EXERCISE 5
 {- Optional - if you wish, you may write an answer for exercise 5 here.
-
+In cl-tutorial-9.pdf
 
 
 

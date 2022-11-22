@@ -99,10 +99,15 @@ put = putStrLn . unlines . showGrid
 
 -- 1.
 choice :: Digit -> [Digit]
-choice = undefined
+choice c
+        | c == ' ' = digits
+        | otherwise = [c]
 
 choices :: Matrix Digit -> Matrix [Digit]
-choices = undefined
+choices = map (map choice)
+
+digits :: [Digit]
+digits = ['1'..'9']
 
 -- 2.
 splits :: [a] -> [(a, [a])]
@@ -112,7 +117,7 @@ splits xs  =
   n = length xs
 
 pruneRow :: Row [Digit] -> Row [Digit]
-pruneRow = undefined
+pruneRow r = [d \\ concat (filter (\x -> length x == 1) ds) | (d,ds) <- splits r ]
 
 -- this code builds on pruneRow to also prune columns and boxes
 
@@ -132,45 +137,65 @@ prune = pruneBy boxs . pruneBy cols . pruneBy rows
 
 -- 3.
 close :: Eq a => (a -> a) -> a -> a
-close = undefined
+close f x
+        | x == f x = x
+        | otherwise = close f (f x)
 
 -- 4.
 extract :: Matrix [Digit] -> Matrix Digit
-extract = undefined
+extract m
+        | all isSingle (concat m) = map (map (\[n] -> n)) m
+        | otherwise = undefined
+        where isSingle x = length x == 1
 
 -- 5.
 solve :: Matrix Digit -> Matrix Digit
-solve = undefined
+solve = extract . close prune . choices
 
 
 -- ** Optional Material
 
 -- 6.
 failed :: Matrix [Digit] -> Bool
-failed = undefined
+failed = any (any null)
 
 -- 7.
 solved :: Matrix [Digit] -> Bool
-solved = undefined
+solved m = all isSingle (concat m)
+        where isSingle x = length x == 1
 
 -- 8.
 shortest :: Matrix [Digit] -> Int
-shortest = undefined
+shortest = minimum . filter (> 1) . map length . concat
 
 -- 9.
 expand :: Matrix [Digit] -> [Matrix [Digit]]
-expand = undefined
+expand m = map (\d -> preMat ++ [preRow ++ [[d]] ++ postRow] ++ postMat) ds
+        where
+                p x = length x == shortest m
+                (preMat, row:postMat) = break (any p) m
+                (preRow, ds:postRow) = break p row
 
 -- 10.
 search :: Matrix Digit -> [Matrix Digit]
-search = undefined
+search = solveMat . choices
+
+solveMat :: Matrix [Digit] -> [Matrix Digit]
+solveMat m
+        | failed m' = []
+        | solved m' = [extract m']
+        | otherwise = [sol | ms <- expand m', sol <- solveMat ms]
+        where m' = close prune m
+
+-- partialSols :: Matrix Digit -> [Matrix [Digit]]
+-- partialSols = filter solved . map (close prune) . expand . close prune . choices
 
 -- display puzzle and then solution(s) found by search
 
 puzzle :: Matrix Digit -> IO ()
 puzzle g = put g >> puts (search g) >> putStrLn "***"
      where puts = sequence_ . map put
-       
+
 main :: IO ()
 main = puzzle easy >>
        puzzle medium >>
