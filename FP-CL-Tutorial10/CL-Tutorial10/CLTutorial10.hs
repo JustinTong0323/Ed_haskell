@@ -113,12 +113,12 @@ dm1 = mkFSM
 
 -- Ex 1.1
 ddelta :: (Ord q) => FSM q -> (Set q) -> Char -> (Set q)
-ddelta (FSM  qs as ts ss fs ) source  sym = undefined
+ddelta (FSM  qs as ts ss fs ) source  sym = transition ts source sym
 
 -- Ex 1.2
 next :: (Ord q) => FSM q -> Set(Set(q)) -> Set(Set(q))
 next fsm@(FSM qs as ts ss fs) supers =
-   fromList [ undefined | super <- toList supers, sym <- toList as ]
+   fromList [ ddelta fsm super sym | super <- toList supers, sym <- toList as ]
 
 -- function provided
 reachable :: (Ord q) => FSM q ->  Set(Set(q)) -> Set(Set(q))
@@ -128,12 +128,12 @@ reachable fsm@(FSM qs as ts ss fs) supers =
 
 -- Ex 1.3
 dfinal :: (Ord q) => FSM q -> Set(Set(q)) -> Set(Set(q))
-dfinal  fsm@(FSM qs as ts ss fs) supers = undefined
+dfinal  fsm@(FSM qs as ts ss fs) supers = filterS (not . null . (fs /\)) supers
 
 -- Ex 1.4
 dtrans :: (Ord q) => FSM q -> Set(Set q) -> Set(Trans (Set q))
 dtrans fsm@(FSM qs as ts ss fs) supers =
-  fromList [ (q, s, undefined) | q <- toList supers, s <- toList as ]
+  fromList [ (q, s, ddelta fsm q s) | q <- toList supers, s <- toList as ]
 
 -- provided function
 toDFA :: (Ord q) => FSM q -> FSM (Set q)
